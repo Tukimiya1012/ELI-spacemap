@@ -115,7 +115,7 @@ function render(line_arry, ctx) {
   }
 
   //pan
-  function pan_move(M,mousex,mousey,cen, evt, ctx){
+  function pan_move(mousex,mousey,cen, evt, ctx){
     var scene = project(cen);
     var nx = evt.clientX;
     var ny = evt.clientY;
@@ -164,7 +164,7 @@ function render(line_arry, ctx) {
       var mousex
 
       for(var j = 0; j<Stars.length; ++j){
-        pan_move(Stars[j], pan_x, pan_y, center, evt, ctx);
+        pan_move(pan_x, pan_y, center, evt, ctx);
       }
       pan_x = evt.clientX;
       pan_y = evt.clientY;
