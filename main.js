@@ -33,11 +33,13 @@ var Lines = [
   [Stars[5],Stars[7]]
 ];
 
+var O = project(Stars[0]);
+
 function project(M){
   return new V2D(M.x,M.z);
 }
 
-function render(line_arry, ctx) {
+function render(line_arry,ctx ,star) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (var i=0, n = line_arry.length; i<n; ++i){
 
@@ -47,9 +49,24 @@ function render(line_arry, ctx) {
     ctx.moveTo(P1.x,P1.y);
     ctx.lineTo(P2.x,P2.y);
 
+    if(P1.x == P2.x && P1.y == P2.y){
+      var Q = new V(P1.x,P2.y);
+    }else{
+      Q = new V(P2.x,P2.y)
+    }
+    ctx.fillRect(Q.x-2.5,Q.y-2.5,5,5);
+    ctx.fillRect(O.x-1,O.y-1,2,2);
+
     ctx.closePath();
     ctx.stroke();
   }
+  /*
+  for (var j=0, m = star.length; i<m; ++j){
+    var Q = project(Stars[j]);
+    ctx.strokeRect(Q.x,Q.y,3,3)
+  }
+  */
+
 }
 
 
@@ -63,10 +80,11 @@ function render(line_arry, ctx) {
 
   var ctx = canvas.getContext("2d");
   ctx.strokeStyle = "rgb(255, 255, 255)"
+  ctx.fillStyle = "rgb(244,255,70)"
   
   //var center = new V(canvas.width / 2, canvas.height / 2 ,canvas.height / 2);
 
-  render(Lines, ctx, dx, dy);
+  render(Lines,ctx,Stars);
 
   /*
   ctx.beginPath();
@@ -91,6 +109,7 @@ function render(line_arry, ctx) {
   document.addEventListener("mousemove", move);
   document.addEventListener("mouseup", stopMove);
   document.addEventListener("wheel", zoom, false);
+  canvas.addEventListener("click", active);
 
 
   canvas.oncontextmenu = function(evt){
@@ -111,7 +130,6 @@ function render(line_arry, ctx) {
     M.x = ct * x - st * cp * y + st * sp * z + center.x;
     M.y = st * x + ct * cp * y - ct * sp * z + center.y;
     M.z = sp * y + cp * z + center.z;
-    console.log(M.x);
   }
 
   //pan
@@ -121,7 +139,6 @@ function render(line_arry, ctx) {
     var ny = evt.clientY;
     
     ctx.translate(-(mousex-nx)/8,-(mousey-ny)/8);
-    console.log(nx);
   }
 
 
@@ -130,9 +147,20 @@ function render(line_arry, ctx) {
       switch(evt.button){
         case 0:
           clearTimeout(autrotate_timeout);
-          mousedown = true;
           mx = evt.clientX;
           my = evt.clientY;
+
+          for(var i=0; i<Stars.length; ++i){
+            var AC_S = project(Stars[i]);
+            if(AC_S.x+50 >= mx && mx >= AC_S.x-50){
+              console.log("active" + Stars[i]);
+            }else{
+              console.log("not");
+              mousedown = true;
+              return;
+            }
+          }
+
           break;
         case 2:
           pan = true;
@@ -157,7 +185,7 @@ function render(line_arry, ctx) {
       mx = evt.clientX;
       my = evt.clientY;
 
-      render(Lines, ctx);
+      render(Lines,ctx,Stars);
     }
 
     if(pan){
@@ -168,7 +196,7 @@ function render(line_arry, ctx) {
       }
       pan_x = evt.clientX;
       pan_y = evt.clientY;
-      render(Lines, ctx);
+      render(Lines,ctx,Stars);
       
     }
   }
@@ -193,10 +221,14 @@ function render(line_arry, ctx) {
     ctx.scale(sca, sca);
     //ctx.translate(zmx,zmy);
     
-    render(Lines, ctx, dx,dy);
+    render(Lines,ctx,Stars);
     ctx.closePath();
     ctx.stroke();
 
+  }
+
+  //星選択
+  function active(evt){
   }
 
   function autorotate(){
@@ -204,7 +236,7 @@ function render(line_arry, ctx) {
       rotate(Stars[i], center, -Math.PI / 720, Math.PI /720);
     }
 
-    render(Lines, ctx, dx,dy);
+    render(Lines,ctx,Stars);
     autrotate_timeout = setTimeout(autorotate,30);
   }
   autrotate_timeout = setTimeout(autorotate, 2000);
